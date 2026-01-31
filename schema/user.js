@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-mongoose.connect ('mongodb://localhost:27017/sfustudbuds')
+mongoose.connect ('mongodb://localhost:8080/studbuds')
 .then(() => {
   console.log('MongoDB connected');
 })
@@ -8,7 +8,7 @@ mongoose.connect ('mongodb://localhost:27017/sfustudbuds')
 });
 
 const UserSchema = new mongoose.Schema({
-    personal:{
+    personal: {
     name: { type: String, required: true }, 
     email: { type: String, required: true, unique: true },
     age: { type: Number, min: [10, 'You are not in University!'], max: [90, 'You are too old for University!'] },
