@@ -1,0 +1,11 @@
+# Minimal Render spec for the sfustudbuds web service
+# Render will read this when you import the repository using "New -> Import a service from repo"
+
+services:
+  - name: sfustudbuds
+    type: web
+    env: docker
+    repo: https://github.com/Saihajy/sfu_studbuds.git
+    branch: studentdb
+    plan: free
+    autoDeploy: true
