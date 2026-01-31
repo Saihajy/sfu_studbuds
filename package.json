@@ -1,0 +1,24 @@
+{
+  "name": "sfu_studbuds",
+  "version": "1.0.0",
+  "description": "Application on springboot hosted on Render",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Saihajy/sfu_studbuds.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Saihajy/sfu_studbuds/issues"
+  },
+  "homepage": "https://github.com/Saihajy/sfu_studbuds#readme",
+  "dependencies": {
+    "mongoose": "^9.1.5"
+  }
+}
