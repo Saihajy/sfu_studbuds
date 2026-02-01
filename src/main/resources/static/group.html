@@ -1,29 +1,123 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content = "width=device-width, initial-scale=1.0">
-        <title>StudBuds</title>
-        <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StudBuds - Find Group</title>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+    <link rel="stylesheet" href="group.css">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
 
-        <link rel="stylesheet" href="group.css">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    </head>
+<body>
 
-    <body>
-        <div class="title-bar">SFU StudBuds</div>
-        <nav class="nav-link">
-            <a href="group.html">Find A Group</a>
-            <a href="profile.html">Profile</a>
-            <button type="button" id="search">Search</button>
-        </nav>
+    <div class="title-bar">Find Your Study Buddies</div>
+    
+    <nav class="nav-link" style="text-align: center;">
+        <a href="group.html">Find A Group</a>
+        <a href="profile.html">Profile</a>
+        <button type="button" id="search">Search</button>
+    </nav>
 
-        <div class="group-layout">
-            <div id="group-content">
+    <div style="text-align: center; margin: 30px;">
+        <button id="findBtn" style="padding: 10px 20px; font-family: 'Press Start 2P'; cursor: pointer;">Find Matches</button>
+        <p id="statusMsg" style="font-size: 10px; margin-top: 10px;"></p>
+    </div>
 
+    <div class="group-layout">
+        <div id="resultsGrid" class="matches-container">
             </div>
-        </div>
-	</body>
+    </div>
+
+    <script>
+        document.getElementById('findBtn').addEventListener('click', loadMatches);
+
+        async function loadMatches() {
+            const container = document.getElementById('resultsGrid');
+            const statusMsg = document.getElementById('statusMsg');
+            
+            container.innerHTML = "<p>Scanning database...</p>";
+            statusMsg.textContent = "";
+
+            let currentUserEmail = localStorage.getItem("currentUserEmail");
+
+            if (!currentUserEmail) {
+                currentUserEmail = prompt("DEV MODE: You are not logged in. Enter your email to test (e.g., sam@test.com):");
+                
+                if (currentUserEmail) {
+                    localStorage.setItem("currentUserEmail", currentUserEmail);
+                } else {
+                    container.innerHTML = "<p style='color:red'>Login required to find matches.</p>";
+                    return;
+                }
+            }
+
+            statusMsg.textContent = `Searching as: ${currentUserEmail}`;
+
+            try {
+                // call the API
+                const res = await fetch('http://localhost:3000/api/find-matches', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: currentUserEmail })
+                });
+
+                if (!res.ok) {
+                    throw new Error(`Server error: ${res.status}`);
+                    localStorage.setItem("currentUserEmail", email); 
+    
+                    window.location.href = "group.html";
+                }
+
+                const users = await res.json();
+                container.innerHTML = ""; 
+
+                if (users.length === 0) {
+                    container.innerHTML = "<p>No matches found :( <br>Try adding more availability!</p>";
+                    return;
+                }
+
+                users.forEach(user => {
+                    // Safety check if courses is undefined
+                    const courses = user.school.courses || [];
+                    const classList = courses
+                        .map(c => `<span class="match-tag">${c.dept} ${c.number}</span>`)
+                        .join('');
+
+                    // Safety check for availability
+                    const availObj = user.school.studyAvailability || {};
+                    const activeDays = Object.keys(availObj)
+                        .filter(day => availObj[day] === true)
+                        .join(", ");
+
+                    // Build Card
+                    const cardHTML = `
+                        <div class="student-card">
+                            <h3 class="card-name">${user.personal.name}</h3>
+                            
+                            <div class="card-details">
+                                <p><strong>Year:</strong> ${user.school.studentYear}</p>
+                                <p><strong>Program:</strong> ${user.school.program || 'N/A'}</p>
+                                <hr style="border: 1px solid #808080; margin: 8px 0;">
+                                <p><strong>Classes:</strong><br>${classList}</p>
+                                <p style="margin-top:8px;"><strong>Available:</strong><br>${activeDays}</p>
+                            </div>
+
+                            <a href="mailto:${user.personal.email}">CONNECT</a>
+                        </div>
+                    `;
+                    
+                    container.innerHTML += cardHTML;
+                });
+
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `<p style='color:red'>Error: ${err.message}</p>`;
+            }
+        }
+    </script>
+</body>
 </html>
