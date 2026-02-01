@@ -1,0 +1,15 @@
+version: "3.8"
+services:
+  app:
+    build: .
+    image: sfustudbuds:local
+    ports:
+      - "8080:8080" # host:container
+    environment:
+      - PORT=8080
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
