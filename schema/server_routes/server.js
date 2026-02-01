@@ -36,48 +36,6 @@ function sanitize(userDoc) {
   return u;
 }
 
-// SIGNUP (creates user with hashed password)
-app.post("/api/auth/signup", async (req, res) => {
-  try {
-    const { personal, school, password } = req.body;
-
-    if (!personal?.name || !personal?.email || !password) {
-      return res.status(400).json({ message: "name, email, password required" });
-    }
-    if (!school?.schoolName || !school?.program || !school?.year) {
-      return res.status(400).json({ message: "schoolName, program, year required" });
-    }
-
-    const email = personal.email.toLowerCase();
-    const exists = await User.findOne({ "personal.email": email });
-    if (exists) return res.status(409).json({ message: "Email already exists" });
-
-    // IMPORTANT: you must add personal.passwordHash to the schema
-    const passwordHash = await bcrypt.hash(password, 10);
-
-    const user = await User.create({
-      personal: {
-        ...personal,
-        email,
-        passwordHash,
-      },
-      school: {
-        ...school,
-        courses: school.courses || [],
-        studyAvailability: school.studyAvailability || {
-          Monday: [], Tuesday: [], Wednesday: [], Thursday: [],
-          Friday: [], Saturday: [], Sunday: [],
-        }
-      }
-    });
-
-    req.session.userId = user._id.toString();
-    res.json({ ok: true, user: sanitize(user) });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error" });
-  }
-});
 
 // LOGIN
 app.post("/api/auth/login", async (req, res) => {
