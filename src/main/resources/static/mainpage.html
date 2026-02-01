@@ -6,17 +6,30 @@
         <title>StudBuds</title>
         <link rel="icon" type="image/x-icon" href="images/favicon.ico">
 
-        <link rel="stylesheet" href="mainpage.css"
+        <link rel="stylesheet" href="mainpage.css">
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
     </head>
 
     <body>
-        <div class="title-bar">SFU StudBuds</div>
-        <nav>
-            <a href="group.html">Find A Group</a>
-            <a href="profile.html">Profile</a>
-        </nav>
-	</body>
+    <div class="title-bar">SFU StudBuds</div>
+
+    <nav>
+        <a href="group.html">Find A Group</a>
+        <a href="profile.html">Profile</a>
+    </nav>
+
+    <script>
+        fetch("http://localhost:3000/api/auth/me", {
+        credentials: "include"
+        })
+        .then(res => {
+        if (!res.ok) {
+            window.location.href = "index.html";
+        }
+        });
+    </script>
+    </body>
+
 </html>

@@ -1,80 +1,80 @@
 <!DOCTYPE html>
 <html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content = "width=device-width, initial-scale=1.0">
-        <title>StudBuds</title>
-        <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudBuds</title>
 
-        <link rel="stylesheet" href="index.css">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    </head>
+  <link rel="stylesheet" href="index.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+</head>
 
-    <body>
-        <div class="title-bar">SFU StudBuds</div>
-        <p>Welcome to SFU StudBuds! We are a student-led team <br>
-        looking to connect SFU students to their classmates, <br> 
-        in order to form valuable connections inside and out of the classroom. <br><br>
-        Please log in or sign up! </p>
+<body>
 
-        <form>
-            <label for="username">Username</label><br>
-            <input type="text" id="username" name="username" placeholder="Enter Username" required>
-            <br><br>
+  <div class="title-bar">SFU StudBuds</div>
 
-            <label for="password">PIN</label><br>
-            <input type="password" id="pin" name="password" placeholder="Enter Password" required>
-            <br><br>
+  <p>
+    Welcome to SFU StudBuds! <br><br>
+    Please log in or sign up.
+  </p>
 
-            <button type ="button">Log In</button>
-            <button type="button">Sign Up</button>
-<<<<<<< HEAD
-        </form>
+  <form id="loginForm">
+    <label>Email</label><br>
+    <input type="email" id="email" required><br><br>
 
-    <!-- Code injected by live-server -->
-<script>
-	// <![CDATA[  <-- For SVG support
-	if ('WebSocket' in window) {
-		(function () {
-			function refreshCSS() {
-				var sheets = [].slice.call(document.getElementsByTagName("link"));
-				var head = document.getElementsByTagName("head")[0];
-				for (var i = 0; i < sheets.length; ++i) {
-					var elem = sheets[i];
-					var parent = elem.parentElement || head;
-					parent.removeChild(elem);
-					var rel = elem.rel;
-					if (elem.href && typeof rel != "string" || rel.length == 0 || rel.toLowerCase() == "stylesheet") {
-						var url = elem.href.replace(/(&|\?)_cacheOverride=\d+/, '');
-						elem.href = url + (url.indexOf('?') >= 0 ? '&' : '?') + '_cacheOverride=' + (new Date().valueOf());
-					}
-					parent.appendChild(elem);
-				}
-			}
-			var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
-			var address = protocol + window.location.host + window.location.pathname + '/ws';
-			var socket = new WebSocket(address);
-			socket.onmessage = function (msg) {
-				if (msg.data == 'reload') window.location.reload();
-				else if (msg.data == 'refreshcss') refreshCSS();
-			};
-			if (sessionStorage && !sessionStorage.getItem('IsThisFirstTime_Log_From_LiveServer')) {
-				console.log('Live reload enabled.');
-				sessionStorage.setItem('IsThisFirstTime_Log_From_LiveServer', true);
-			}
-		})();
-	}
-	else {
-		console.error('Upgrade your browser. This Browser is NOT supported WebSocket for Live-Reloading.');
-	}
-	// ]]>
-</script>
+    <label>Password</label><br>
+    <input type="password" id="password" required><br><br>
+
+    <button type="submit">Log In</button>
+    <button type="button" id="signupBtn">Sign Up</button>
+
+    <p id="msg"></p>
+  </form>
+
+  <script>
+    const form = document.getElementById("loginForm");
+    const msg = document.getElementById("msg");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      msg.textContent = "Logging in...";
+
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+
+      try {
+        const res = await fetch("http://localhost:3000/api/auth/login", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          credentials: "include",
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          msg.textContent = data.message || "Invalid login";
+          return;
+        }
+
+        // ✅ LOGIN SUCCESS
+        window.location.href = "mainpage.html";
+
+      } catch (err) {
+        console.error(err);
+        msg.textContent = "Server not running on port 3000";
+      }
+    });
+
+    document.getElementById("signupBtn").addEventListener("click", () => {
+      window.location.href = "signup.html";
+    });
+  </script>
+
 </body>
 </html>
-=======
-        </form>	
-	</body>
-</html>
->>>>>>> 5b10bb9 (added theme for group mainpage)
