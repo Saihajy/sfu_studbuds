@@ -1,0 +1,19 @@
+.group-layout {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+#filter-col {
+    width: 250px;
+    border: 2px solid black;
+    padding:12px;
+    min-height: 300px
+}
+
+#group-content {
+    flex: 1;
+    border: 2px solid black;
+    padding: 12px;
+    min-height: 300px;
+}
