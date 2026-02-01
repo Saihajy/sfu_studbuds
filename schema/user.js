@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-mongoose.connect ('mongodb://localhost:8080/studbuds')
+mongoose.connect ('mongodb://localhost:27017/studentUser')
 .then(() => {
   console.log('MongoDB connected');
 })
@@ -41,4 +41,7 @@ const UserSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model('User', UserSchema);
+
+
+
 module.exports = User;
