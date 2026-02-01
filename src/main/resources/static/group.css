@@ -1,22 +1,14 @@
 .group-layout {
     display: flex;
-    gap: 20px;
     padding: 20px;
 }
 
-#filter-col {
-    width: 250px;
-    border: 2px solid black;
-    padding:12px;
-    min-height: 300px
+#group-content {
+    border: 3px solid black;
+    margin-left: 20px;
+    margin-right: 20px;
 }
 
-#group-content {
-    flex: 1;
-    border: 2px solid black;
-    padding: 12px;
-    min-height: 300px;
-}
 
 :root {
     --bg: #c0c0c0; 
