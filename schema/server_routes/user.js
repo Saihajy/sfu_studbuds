@@ -23,13 +23,13 @@ const UserSchema = new mongoose.Schema({
     }],
 
     studyAvailability: {
-      Monday: [String],
-      Tuesday: [String],
-      Wednesday: [String],
-      Thursday: [String],
-      Friday: [String],
-      Saturday: [String],
-      Sunday: [String]
+      Monday: Boolean,
+      Tuesday: Boolean,
+      Wednesday: Boolean,
+      Thursday: Boolean,
+      Friday: Boolean,
+      Saturday: Boolean,
+      Sunday: Boolean
     }
   }
 
