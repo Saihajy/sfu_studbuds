@@ -1,11 +1,4 @@
 const mongoose = require('mongoose');
-mongoose.connect ('mongodb://localhost:27017/studentUser')
-.then(() => {
-  console.log('MongoDB connected');
-})
-.catch(err => {
-  console.error('MongoDB connection error:', err);
-});
 
 const UserSchema = new mongoose.Schema({
     personal: {
@@ -18,13 +11,14 @@ const UserSchema = new mongoose.Schema({
 
   },
   school:{
-    schoolName: { type: String, required: true },
-    program: { type: String, required: true },
-    year: { type: Number, min: 1, required: true },
+    schoolName: { type: String},
+    program: { type: String},
+    studentYear: { type: Number, min: 1, required: true},
     courses: [{
-      dept: String,
-      number: String,
-      term: String
+      dept: { type: String, uppercase: true },
+      number:{type: String},
+      term: String,
+      year: { type: String, required: true }
     }],
 
     studyAvailability: {
@@ -41,7 +35,4 @@ const UserSchema = new mongoose.Schema({
 });
 
 const User = mongoose.model('User', UserSchema);
-
-
-
 module.exports = User;
