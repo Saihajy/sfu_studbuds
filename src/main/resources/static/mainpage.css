@@ -1,58 +1,205 @@
-/* .css for landing page, aiming for retro windows 95' esque vibe 
+/* mainpage.css — Windows 95 retro vibe
 est. 2026, ASB
 */
 
 :root {
-    --bg: #c0c0c0; 
-    --panel: #dcdcdc;
-    --shadow-dark: #808080; 
-    --shadow-light: #ffffff;
-    --text: #000000;
-    --blue: #000080;
+  --bg: #c0c0c0;
+  --panel: #dcdcdc;
+  --shadow-dark: #808080;
+  --shadow-light: #ffffff;
+  --text: #000000;
+  --blue: #000080;
 }
 
 body {
-    margin: 0;
-    font-family: "Press Start 2P", system-ui;
-    background: var(--bg);
-    color: var(--text);
-    text-align: center;
-}
-
-nav {
-    margin-top: 25px;
-}
-
-.press-start-2p-regular {
+  margin: 0;
   font-family: "Press Start 2P", system-ui;
-  font-weight: 400;
-  font-style: normal;
-}
-
-
-.window {
-    width: min(500px, 90vw);
-    margin: 50px auto;
-    background: var(--panel);
-    border: 2px solid var(--shadow-dark);
-    /* 3d effect */
-    box-shadow:
-        -2px -2px 0 var(--shadow-light),
-        2px 2px 0 var(--shadow-dark);
+  background: var(--bg);
+  color: var(--text);
+  text-align: center;
 }
 
 /* Title bar */
 .title-bar {
-    background: var(--blue);
-    color: #CC0633;
-    padding: 10px 8px; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-weight: bold;
-    font-size: 40px;
+  background: var(--blue);
+  color: #cc0633;
+  padding: 14px 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  font-size: 40px;
+}
+
+/* Top nav */
+.top-nav {
+  margin-top: 22px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.nav-link {
+  font-size: 10px;
+  padding: 10px 14px;
+  background: var(--panel);
+  border: 2px solid var(--shadow-dark);
+  box-shadow: -2px -2px 0 var(--shadow-light), 2px 2px 0 var(--shadow-dark);
+  color: var(--text);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.nav-btn {
+  font-family: "Press Start 2P", system-ui;
+}
+
+/* Dashboard layout */
+.dashboard {
+  width: min(980px, 92vw);
+  margin: 22px auto 60px;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 900px) {
+  .dashboard {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Windows */
+.window {
+  background: var(--panel);
+  border: 2px solid var(--shadow-dark);
+  box-shadow: -2px -2px 0 var(--shadow-light), 2px 2px 0 var(--shadow-dark);
+  text-align: left;
 }
 
 .window-context {
-    padding: 14px;
+  padding: 14px;
+}
+
+.window-title {
+  text-align: center;
+  font-size: 14px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  margin-bottom: 14px;
+  border-bottom: 2px solid var(--shadow-dark);
+  padding-bottom: 6px;
+}
+
+.subtext {
+  margin: 0;
+  font-size: 9px;
+  line-height: 1.7;
+  opacity: 0.9;
+}
+
+.label {
+  font-weight: bold;
+  color: #000;
+}
+
+.info-grid p {
+  margin: 10px 0;
+  font-size: 10px;
+  line-height: 1.7;
+}
+
+.divider {
+  height: 2px;
+  background: var(--shadow-dark);
+  box-shadow: 0 -2px 0 var(--shadow-light);
+  margin: 14px 0;
+}
+
+/* Buttons */
+.action-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  margin-top: 12px;
+}
+
+.btn95 {
+  font-family: "Press Start 2P", system-ui;
+  font-size: 10px;
+  padding: 14px 12px;
+  background: var(--panel);
+  border: 2px solid var(--shadow-dark);
+  box-shadow: -2px -2px 0 var(--shadow-light), 2px 2px 0 var(--shadow-dark);
+  cursor: pointer;
+  text-align: left;
+}
+
+.btn95:active {
+  box-shadow: inset -2px -2px 0 var(--shadow-light), inset 2px 2px 0 var(--shadow-dark);
+}
+
+/* Lists */
+.list95 {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  font-size: 9px;
+  line-height: 1.9;
+}
+
+/* Pills */
+.pill-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.pill {
+  display: inline-block;
+  padding: 7px 10px;
+  font-size: 9px;
+  background: #ffffff;
+  border: 2px solid var(--shadow-dark);
+  box-shadow: -2px -2px 0 var(--shadow-light), 2px 2px 0 var(--shadow-dark);
+}
+
+.pill.off {
+  opacity: 0.7;
+}
+
+.tiny-note {
+  margin-top: 12px;
+  font-size: 8px;
+  opacity: 0.75;
+  line-height: 1.7;
+}
+
+#welcomeText {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+  text-align: left;
+}
+
+#welcomeSub {
+  font-size: 10px;
+  opacity: 0.85;
+}
+
+
+.window:hover {
+  transform: translateY(-1px);
+}
+.window {
+  position: relative;
+}
+
+.window::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 2px solid var(--shadow-light);
+  pointer-events: none;
 }

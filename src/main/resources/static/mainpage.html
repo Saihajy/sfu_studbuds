@@ -1,35 +1,197 @@
+<!-- mainpage.html -->
 <!DOCTYPE html>
-<html>
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content = "width=device-width, initial-scale=1.0">
-        <title>StudBuds</title>
-        <link rel="icon" type="image/x-icon" href="images/favicon.ico">
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>StudBuds</title>
 
-        <link rel="stylesheet" href="mainpage.css">
-        <link rel="preconnect" href="https://fonts.googleapis.com">
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-    </head>
+    <link rel="icon" type="image/x-icon" href="images/favicon.ico" />
+    <link rel="stylesheet" href="mainpage.css" />
 
-    <body>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+
+  <body>
     <div class="title-bar">SFU StudBuds</div>
 
-    <nav>
-        <a href="group.html">Find A Group</a>
-        <a href="profile.html">Profile</a>
+    <nav class="top-nav">
+      <a class="nav-link" href="group.html">Find A Group</a>
+      <a class="nav-link" href="profile.html">Profile</a>
+      <button class="nav-link nav-btn" id="logoutBtn" type="button">Logout</button>
     </nav>
 
-    <script>
-        fetch("http://localhost:3000/api/auth/me", {
-        credentials: "include"
-        })
-        .then(res => {
-        if (!res.ok) {
-            window.location.href = "index.html";
-        }
-        });
-    </script>
-    </body>
+    <!-- DASHBOARD -->
+    <main class="dashboard">
+      <!-- Welcome -->
+      <section class="window">
+        <div class="window-context">
+          <h2 class="window-title" id="welcomeText">Loading...</h2>
+          <p class="subtext" id="welcomeSub">Checking your account…</p>
+        </div>
+      </section>
 
+      <!-- Quick Actions -->
+      <section class="window">
+        <div class="window-context">
+          <h3 class="window-title">Quick Actions</h3>
+          <div class="action-grid">
+            <button class="btn95" type="button" onclick="location.href='group.html'">
+              🔍 Find Study Group
+            </button>
+            <button class="btn95" type="button" onclick="location.href='profile.html'">
+              🧠 Update Profile
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Your Study Profile -->
+      <section class="window">
+        <div class="window-context">
+          <h3 class="window-title">Your Study Profile</h3>
+
+          <div class="info-grid">
+            <p><span class="label">Program:</span> <span id="programText">–</span></p>
+            <p><span class="label">Year:</span> <span id="yearText">–</span></p>
+            <p><span class="label">Email:</span> <span id="emailText">–</span></p>
+          </div>
+
+          <div class="divider"></div>
+
+          <p class="label">Courses:</p>
+          <ul id="courseList" class="list95"></ul>
+
+          <p class="label" style="margin-top: 12px;">Availability:</p>
+          <div id="availPills" class="pill-row"></div>
+        </div>
+      </section>
+
+      <!-- Students Studying Now (demo-friendly filler) -->
+      <section class="window">
+        <div class="window-context">
+          <h3 class="window-title">Students Studying Now</h3>
+          <ul class="list95">
+            <li>📘 CMPT 225 — Burnaby Campus</li>
+            <li>📗 BUS 232 — Online</li>
+            <li>📕 MACM 201 — Bennett Library</li>
+            <li>📙 ECON 103 — Surrey Campus</li>
+          </ul>
+          <p class="tiny-note">Live availability updates coming soon.</p>
+        </div>
+      </section>
+    </main>
+
+    <script>
+      const API_BASE = "http://localhost:3000";
+
+      const welcomeText = document.getElementById("welcomeText");
+      const welcomeSub = document.getElementById("welcomeSub");
+      const programText = document.getElementById("programText");
+      const yearText = document.getElementById("yearText");
+      const emailText = document.getElementById("emailText");
+      const courseList = document.getElementById("courseList");
+      const availPills = document.getElementById("availPills");
+      const logoutBtn = document.getElementById("logoutBtn");
+
+      function setLoadingState() {
+        welcomeText.textContent = "Loading...";
+        welcomeSub.textContent = "Checking your account…";
+      }
+
+      function renderAvailability(avail) {
+        availPills.innerHTML = "";
+        const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+        const onDays = days.filter(d => !!avail?.[d]);
+
+        if (onDays.length === 0) {
+          const span = document.createElement("span");
+          span.className = "pill off";
+          span.textContent = "No days selected";
+          availPills.appendChild(span);
+          return;
+        }
+
+        onDays.forEach(d => {
+          const pill = document.createElement("span");
+          pill.className = "pill";
+          pill.textContent = d.slice(0,3);
+          availPills.appendChild(pill);
+        });
+      }
+
+      function renderCourses(courses) {
+        courseList.innerHTML = "";
+        if (!courses || courses.length === 0) {
+          const li = document.createElement("li");
+          li.textContent = "No courses added yet.";
+          courseList.appendChild(li);
+          return;
+        }
+
+        courses.forEach(c => {
+          const li = document.createElement("li");
+          const dept = (c.dept || "").toUpperCase();
+          const num = c.number || "";
+          const term = c.term || "";
+          const year = c.year || "";
+          li.textContent = `${dept} ${num} — ${term} ${year}`.trim();
+          courseList.appendChild(li);
+        });
+      }
+
+      async function loadMe() {
+        try {
+          setLoadingState();
+
+          const res = await fetch(`${API_BASE}/api/auth/me`, {
+            method: "GET",
+            credentials: "include"
+          });
+
+          if (!res.ok) {
+            window.location.href = "index.html";
+            return;
+          }
+
+          const data = await res.json();
+          const user = data.user;
+
+          welcomeText.textContent = `Welcome back, ${user.personal?.name || "StudBud"}!`;
+          welcomeSub.textContent = "Here’s your dashboard.";
+
+          programText.textContent = user.school?.program || "Not set";
+          yearText.textContent = user.school?.studentYear || "–";
+          emailText.textContent = user.personal?.email || "–";
+
+          renderCourses(user.school?.courses || []);
+          renderAvailability(user.school?.studyAvailability || {});
+        } catch (err) {
+          console.error(err);
+          welcomeText.textContent = "Couldn’t load your dashboard";
+          welcomeSub.textContent = "Try refreshing.";
+        }
+      }
+
+      logoutBtn.addEventListener("click", async () => {
+        try {
+          await fetch(`${API_BASE}/api/auth/logout`, {
+            method: "POST",
+            credentials: "include"
+          });
+        } catch (e) {
+          console.error(e);
+        } finally {
+          window.location.href = "/";
+        }
+      });
+
+      loadMe();
+    </script>
+  </body>
 </html>

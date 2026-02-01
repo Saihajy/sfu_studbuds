@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StudBuds • Profile</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./profile.css" />
+</head>
+
+<body>
+  <nav class="nav-bar">
+    <a class="nav-link" href="/mainpage.html">Home</a>
+    <button class="nav-link btn-link" type="button" id="logoutBtn">Logout</button>
+  </nav>
+
+  <main class="page">
+    <section class="window">
+      <div class="title-bar">
+        <div class="title-text">PROFILE</div>
+      </div>
+
+      <div class="window-context">
+        <p class="hint">
+          Update your info, then hit <span class="kbd">Save</span>.
+        </p>
+
+        <form id="profileForm" class="form-grid" autocomplete="on">
+          <!-- PERSONAL -->
+          <fieldset class="panel">
+            <legend class="panel-title">Personal</legend>
+
+            <div class="field">
+              <label for="name">Name *</label>
+              <input id="name" type="text" placeholder="ex. LeBron James" required />
+            </div>
+
+            <div class="field">
+              <label for="age">Age</label>
+              <input id="age" type="number" min="10" max="90" placeholder="ex. 19" />
+            </div>
+
+            <div class="field">
+              <label for="gender">Gender</label>
+              <select id="gender">
+                <option value="">(select)</option>
+                <option value="M">M</option>
+                <option value="F">F</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="email">Email *</label>
+              <input id="email" type="email" placeholder="ex. lebron@sfu.ca" required />
+            </div>
+
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input id="phone" type="tel" placeholder="ex. (604) 555-1234" />
+            </div>
+
+            <div class="field field-full">
+              <label for="password">New Password</label>
+              <input id="password" type="password" placeholder="Leave blank to keep current" />
+              <div class="micro">Leave empty if you don’t want to change it.</div>
+            </div>
+          </fieldset>
+
+          <!-- SCHOOL -->
+          <fieldset class="panel">
+            <legend class="panel-title">School</legend>
+
+            <div class="field">
+              <label for="schoolName">School</label>
+              <input id="schoolName" type="text" placeholder="ex. SFU" />
+            </div>
+
+            <div class="field">
+              <label for="program">Program</label>
+              <input id="program" type="text" placeholder="ex. Computing Science" />
+            </div>
+
+            <div class="field">
+              <label for="studentYear">Year *</label>
+              <input id="studentYear" type="number" min="1" placeholder="ex. 2" required />
+            </div>
+
+            <!-- COURSES -->
+            <div class="field field-full">
+              <div class="row-head">
+                <div>
+                  <div class="row-title">Courses</div>
+                  <div class="micro">Add your courses (dept/number/term/year)</div>
+                </div>
+                <button class="btn" type="button" id="addCourseBtn">+ Add</button>
+              </div>
+
+              <div id="coursesWrap" class="courses"></div>
+            </div>
+
+            <!-- AVAILABILITY -->
+            <div class="field field-full">
+              <div class="row-title">Study Availability</div>
+              <div class="micro">Pick the days you're usually down to study</div>
+
+              <div class="days">
+                <label class="check"><input type="checkbox" id="Monday" /><span>Mon</span></label>
+                <label class="check"><input type="checkbox" id="Tuesday" /><span>Tue</span></label>
+                <label class="check"><input type="checkbox" id="Wednesday" /><span>Wed</span></label>
+                <label class="check"><input type="checkbox" id="Thursday" /><span>Thu</span></label>
+                <label class="check"><input type="checkbox" id="Friday" /><span>Fri</span></label>
+                <label class="check"><input type="checkbox" id="Saturday" /><span>Sat</span></label>
+                <label class="check"><input type="checkbox" id="Sunday" /><span>Sun</span></label>
+              </div>
+            </div>
+          </fieldset>
+
+          <!-- ACTIONS -->
+          <div class="actions">
+            <div class="status" id="statusText">Status: loading...</div>
+            <div class="action-buttons">
+              <button class="btn" type="button" id="loadBtn">Load</button>
+              <button class="btn primary" type="submit">Save</button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    // If your backend is always localhost:3000, keep this.
+    // If you set up a proxy later, you can change to "".
+    const API_BASE = "http://localhost:3000";
+
+    const statusText = document.getElementById("statusText");
+    const form = document.getElementById("profileForm");
+    const coursesWrap = document.getElementById("coursesWrap");
+    const addCourseBtn = document.getElementById("addCourseBtn");
+    const loadBtn = document.getElementById("loadBtn");
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    const days = ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"];
+
+    function setStatus(msg) {
+      statusText.textContent = "Status: " + msg;
+    }
+
+    function courseRowTemplate(i, course = {}) {
+      const dept = course.dept ?? "";
+      const number = course.number ?? "";
+      const term = course.term ?? "";
+      const year = course.year ?? "";
+
+      return `
+        <div class="course-row" data-index="${i}">
+          <div class="course-cell">
+            <label>Dept</label>
+            <input class="course-dept" type="text" placeholder="ex. CMPT" value="${escapeHtml(dept)}" />
+          </div>
+          <div class="course-cell">
+            <label>Number</label>
+            <input class="course-number" type="text" placeholder="ex. 225" value="${escapeHtml(number)}" />
+          </div>
+          <div class="course-cell">
+            <label>Term</label>
+            <input class="course-term" type="text" placeholder="ex. Spring" value="${escapeHtml(term)}" />
+          </div>
+          <div class="course-cell">
+            <label>Year *</label>
+            <input class="course-year" type="text" placeholder="ex. 2026" value="${escapeHtml(year)}" />
+          </div>
+          <button class="btn danger removeCourseBtn" type="button" title="Remove course">X</button>
+        </div>
+      `;
+    }
+
+    // Simple HTML escape so values don’t break your template
+    function escapeHtml(str) {
+      return String(str)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function renderCourses(courses) {
+      coursesWrap.innerHTML = "";
+      const list = (courses && courses.length) ? courses : [{}];
+
+      list.forEach((c, i) => {
+        coursesWrap.insertAdjacentHTML("beforeend", courseRowTemplate(i, c));
+      });
+    }
+
+    function readCoursesFromUI() {
+      const rows = Array.from(coursesWrap.querySelectorAll(".course-row"));
+      const out = rows.map(row => {
+        const dept = row.querySelector(".course-dept")?.value?.trim() || "";
+        const number = row.querySelector(".course-number")?.value?.trim() || "";
+        const term = row.querySelector(".course-term")?.value?.trim() || "";
+        const year = row.querySelector(".course-year")?.value?.trim() || "";
+
+        return { dept, number, term, year };
+      });
+
+      // Remove totally empty rows
+      return out.filter(c => c.dept || c.number || c.term || c.year);
+    }
+
+    addCourseBtn.addEventListener("click", () => {
+      const i = coursesWrap.querySelectorAll(".course-row").length;
+      coursesWrap.insertAdjacentHTML("beforeend", courseRowTemplate(i, {}));
+      setStatus("added course");
+    });
+
+    coursesWrap.addEventListener("click", (e) => {
+      if (e.target.classList.contains("removeCourseBtn")) {
+        const row = e.target.closest(".course-row");
+        if (row) row.remove();
+        setStatus("removed course");
+      }
+    });
+
+    function fillFormFromUser(user) {
+      // personal
+      document.getElementById("name").value = user?.personal?.name ?? "";
+      document.getElementById("age").value = user?.personal?.age ?? "";
+      document.getElementById("gender").value = user?.personal?.gender ?? "";
+      document.getElementById("email").value = user?.personal?.email ?? "";
+      document.getElementById("phone").value = user?.personal?.phone ?? "";
+      document.getElementById("password").value = "";
+
+      // school
+      document.getElementById("schoolName").value = user?.school?.schoolName ?? "";
+      document.getElementById("program").value = user?.school?.program ?? "";
+      document.getElementById("studentYear").value = user?.school?.studentYear ?? "";
+
+      // availability
+      const avail = user?.school?.studyAvailability || {};
+      days.forEach(d => {
+        const cb = document.getElementById(d);
+        if (cb) cb.checked = !!avail[d];
+      });
+
+      // courses
+      renderCourses(user?.school?.courses || []);
+    }
+
+    function buildPayloadFromForm() {
+      // personal
+      const personal = {
+        name: document.getElementById("name").value.trim(),
+        email: document.getElementById("email").value.trim().toLowerCase(),
+        age: document.getElementById("age").value ? Number(document.getElementById("age").value) : undefined,
+        gender: document.getElementById("gender").value || undefined,
+        phone: document.getElementById("phone").value.trim() || undefined
+      };
+
+      // password only if typed
+      const newPass = document.getElementById("password").value;
+      if (newPass && newPass.trim().length > 0) {
+        personal.password = newPass.trim();
+      }
+
+      // availability
+      const studyAvailability = {};
+      days.forEach(d => {
+        const cb = document.getElementById(d);
+        studyAvailability[d] = cb ? cb.checked : false;
+      });
+
+      // courses
+      const courses = readCoursesFromUI().map(c => ({
+        // Your server validation expects dept/number/year/term
+        // Keep dept uppercase in DB? Your schema uppercases dept automatically.
+        dept: (c.dept || "").trim(),
+        number: (c.number || "").trim(),
+        term: (c.term || "").trim(),
+        year: (c.year || "").trim()
+      }));
+
+      // school
+      const school = {
+        schoolName: document.getElementById("schoolName").value.trim() || "SFU",
+        program: document.getElementById("program").value.trim() || undefined,
+        studentYear: document.getElementById("studentYear").value ? Number(document.getElementById("studentYear").value) : undefined,
+        courses,
+        studyAvailability
+      };
+
+      // Remove undefined fields so you don’t accidentally overwrite with undefined
+      function stripUndefined(obj) {
+        Object.keys(obj).forEach(k => {
+          if (obj[k] === undefined) delete obj[k];
+        });
+        return obj;
+      }
+
+      stripUndefined(personal);
+      stripUndefined(school);
+
+      return { personal, school };
+    }
+
+    async function loadMe() {
+      try {
+        setStatus("loading...");
+        const res = await fetch(`${API_BASE}/api/auth/me`, {
+          method: "GET",
+          credentials: "include"
+        });
+
+        if (!res.ok) {
+          setStatus("not logged in");
+          window.location.href = "/";
+          return;
+        }
+
+        const data = await res.json();
+        fillFormFromUser(data.user);
+        setStatus("loaded");
+      } catch (err) {
+        console.error(err);
+        setStatus("load failed");
+      }
+    }
+
+    async function saveProfile() {
+      try {
+        setStatus("saving...");
+        const payload = buildPayloadFromForm();
+
+        const res = await fetch(`${API_BASE}/api/profile`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json().catch(() => ({}));
+
+        if (!res.ok) {
+          setStatus(data?.message || "save failed");
+          return;
+        }
+
+        // Update UI using returned user (canonical data)
+        if (data?.user) fillFormFromUser(data.user);
+        setStatus("saved!");
+      } catch (err) {
+        console.error(err);
+        setStatus("save failed");
+      }
+    }
+
+    // Buttons
+    loadBtn.addEventListener("click", loadMe);
+
+    form.addEventListener("submit", (e) => {
+      e.preventDefault();
+      saveProfile();
+    });
+
+    logoutBtn.addEventListener("click", async () => {
+      try {
+        setStatus("logging out...");
+        await fetch(`${API_BASE}/api/auth/logout`, {
+          method: "POST",
+          credentials: "include"
+        });
+      } catch (err) {
+        console.error(err);
+      } finally {
+        window.location.href = "/";
+      }
+    });
+
+    // Auto-load on open
+    loadMe();
+  </script>
+</body>
+</html>
