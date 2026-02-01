@@ -1,23 +1,4 @@
-.group-layout {
-    display: flex;
-    gap: 20px;
-    padding: 20px;
-}
-
-#filter-col {
-    width: 250px;
-    border: 2px solid black;
-    padding:12px;
-    min-height: 300px
-}
-
-#group-content {
-    flex: 1;
-    border: 2px solid black;
-    padding: 12px;
-    min-height: 300px;
-}
-
+/* --- VARIABLES & BASICS --- */
 :root {
     --bg: #c0c0c0; 
     --panel: #dcdcdc;
@@ -25,6 +6,7 @@
     --shadow-light: #ffffff;
     --text: #000000;
     --blue: #000080;
+    --sfu-red: #CC0633;
 }
 
 body {
@@ -35,40 +17,140 @@ body {
     text-align: center;
 }
 
-nav {
-    margin-top: 25px;
-}
-
 .press-start-2p-regular {
   font-family: "Press Start 2P", system-ui;
   font-weight: 400;
   font-style: normal;
 }
 
+nav {
+    margin-top: 25px;
+}
+
+.group-layout {
+    display: flex;
+    padding: 20px;
+    justify-content: center;
+}
+
+#group-content {
+    width: 100%;
+    max-width: 1200px; 
+    margin: 0 auto;
+}
 
 .window {
     width: min(500px, 90vw);
     margin: 50px auto;
     background: var(--panel);
     border: 2px solid var(--shadow-dark);
-    /* 3d effect */
     box-shadow:
         -2px -2px 0 var(--shadow-light),
         2px 2px 0 var(--shadow-dark);
 }
 
-/* Title bar */
 .title-bar {
     background: var(--blue);
-    color: #CC0633;
+    color: var(--sfu-red);
     padding: 10px 8px; 
     display: flex;
     justify-content: center;
     align-items: center;
     font-weight: bold;
     font-size: 40px;
+    
+    border-bottom: 2px solid var(--shadow-dark);
 }
 
 .window-context {
     padding: 14px;
+}
+
+
+/* The Grid Container */
+.matches-container {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 25px;
+    padding: 20px;
+    margin: 0 auto;
+}
+
+.student-card {
+    background: var(--panel);
+    border: 2px solid var(--bg);
+    padding: 15px;
+    text-align: left; 
+    
+    box-shadow: 
+        -2px -2px 0 var(--shadow-light), 
+        2px 2px 0 var(--shadow-dark);
+        
+    transition: transform 0.2s;
+}
+
+.student-card:hover {
+    transform: translateY(-4px); 
+    cursor: pointer;
+}
+
+.card-name {
+    font-size: 14px;
+    color: var(--blue);
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    border-bottom: 2px solid var(--shadow-dark);
+    padding-bottom: 8px;
+}
+
+.card-details {
+    font-size: 10px;
+    line-height: 1.8;
+}
+
+.match-tag {
+    display: inline-block;
+    background-color: var(--bg);
+    border: 1px solid var(--shadow-dark);
+    color: var(--text);
+    padding: 4px 6px;
+    font-size: 8px;
+    margin-right: 5px;
+    margin-bottom: 5px;
+    box-shadow: inset 1px 1px 0 var(--shadow-dark), inset -1px -1px 0 var(--shadow-light);
+}
+
+.student-card a {
+    display: block;
+    margin-top: 15px;
+    text-align: center;
+    background: var(--blue);
+    color: white;
+    text-decoration: none;
+    padding: 8px;
+    font-size: 10px;
+    box-shadow: 2px 2px 0 var(--shadow-dark);
+}
+
+.student-card a:active {
+    box-shadow: inset 2px 2px 0 var(--shadow-dark);
+    transform: translate(2px, 2px);
+}
+
+
+@media (max-width: 900px) {
+    .matches-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+
+@media (max-width: 600px) {
+    .matches-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .title-bar {
+        font-size: 24px; 
+    }
 }

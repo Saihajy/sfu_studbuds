@@ -7,23 +7,22 @@ const session = require("express-session");
 const cors = require("cors");
 
 const app = express()
-// --- 1. ENABLE LOGGING (See if the server even hears you) ---
 app.use((req, res, next) => {
   console.log(`Incoming Request: ${req.method} ${req.url}`);
   next();
 });
 
-// --- 2. BULLETPROOF CORS SETUP ---
+// cors setup
 app.use(cors({
-  origin: "http://localhost:8080", // Allow only your frontend
-  credentials: true,               // Allow cookies/sessions
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allow these verbs
+  origin: "http://localhost:8080", 
+  credentials: true,               
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], 
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
-// Handle "Preflight" requests explicitly
 
-// --- 3. JSON PARSING (After CORS) ---
+
+// json parsing
 app.use(express.json());
 
 mongoose.connect('mongodb://localhost:27017/studentUser')
@@ -49,7 +48,7 @@ app.post('/register', async (req, res) => {
   try {
     const { personal, school } = req.body;
 
-    // 1. SFU Course Validation
+    //SFU Course Validation
     if (school && school.courses) {
       for (const course of school.courses) {
         const isValid = await validateCourseWithSFU(
@@ -66,8 +65,7 @@ app.post('/register', async (req, res) => {
       }
     }
 
-    // 2. Hash the Password
-    // We expect the frontend to send 'password' inside 'personal'
+    // 2. Hash the Password(bcrypt)
     if (!personal || !personal.password) {
       return res.status(400).send("Password is required");
     }
@@ -75,8 +73,7 @@ app.post('/register', async (req, res) => {
     const salt = await bcrypt.genSalt(10);
     const hash = await bcrypt.hash(personal.password, salt);
 
-    // 3. Prepare the object for Mongoose
-    // We swap 'password' for 'passwordHash'
+  //prep for mongoose
     const userPayload = {
       ...req.body,
       personal: {
@@ -85,12 +82,11 @@ app.post('/register', async (req, res) => {
       }
     };
 
-    // 4. Save
+    // Save
     const user = new User(userPayload);
     await user.save();
     console.log("User created:", user.personal.name);
     
-    // Return sanitized user (no hash)
     res.status(201).send(sanitize(user));
 
   } catch (err) {
@@ -280,4 +276,52 @@ app.get("/api/health", (req, res) => res.json({ ok: true }));
 const PORT = 3000;
 app.listen(PORT, () => {
   console.log(`Server is running on ${PORT}`);
+});
+
+app.post('/api/find-matches', async (req, res) => {
+  try {
+    const { email } = req.body; 
+
+    const currentUser = await User.findOne({ "personal.email": email });
+    if (!currentUser) return res.status(404).send("User not found");
+
+    const myCourses = currentUser.school.courses;
+    const myAvailability = currentUser.school.studyAvailability;
+
+
+    const courseQueries = myCourses.map(c => ({
+      "school.courses": { 
+        $elemMatch: { dept: c.dept, number: c.number } 
+      }
+    }));
+
+
+    const dayQueries = [];
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    
+    days.forEach(day => {
+      // If I am free on this day, look for others who are also free
+      if (myAvailability[day] === true) {
+        let queryObj = {};
+        queryObj[`school.studyAvailability.${day}`] = true;
+        dayQueries.push(queryObj);
+      }
+    });
+
+
+    const query = {
+      _id: { $ne: currentUser._id }, 
+      $and: [
+        { $or: courseQueries.length > 0 ? courseQueries : [{}] }, // Match any course
+        { $or: dayQueries.length > 0 ? dayQueries : [{}] }        // Match any day
+      ]
+    };
+
+    const matches = await User.find(query).limit(50); // Limit to 50 results
+    res.json(matches);
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Server error");
+  }
 });

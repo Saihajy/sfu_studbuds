@@ -105,8 +105,6 @@
         document.getElementById('signupForm').addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            // 1. Construct the Personal Object
-            // Note: We send 'password' here. The server logic I gave you above will hash it.
             const personal = {
                 name: document.getElementById('name').value,
                 email: document.getElementById('email').value,
@@ -116,10 +114,8 @@
                 phone: document.getElementById('phone').value
             };
 
-            // 2. Construct the Availability Object
             const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
             const availability = {};
-            // The schema expects keys like "Monday", but IDs are "Mon". Let's map them.
             const dayMap = { 
                 "Mon": "Monday", "Tue": "Tuesday", "Wed": "Wednesday", 
                 "Thu": "Thursday", "Fri": "Friday", "Sat": "Saturday", "Sun": "Sunday" 
@@ -130,7 +126,6 @@
                 availability[dayMap[d]] = document.getElementById(d).checked;
             });
 
-            // 3. Construct the Course Array
             // SFU API requires lowercase dept
             const courses = [{
                 dept: document.getElementById('courseDept').value.toLowerCase(),
@@ -139,7 +134,6 @@
                 year: document.getElementById('courseYear').value
             }];
 
-            // 4. Final Nested Payload
             const payload = {
                 personal: personal,
                 school: {
@@ -162,13 +156,11 @@
                     body: JSON.stringify(payload)
                 });
 
-                const result = await response.json(); // Wait for JSON parsing
+                const result = await response.json(); 
 
                 if (response.ok) {
                     alert("Success! User ID: " + result._id);
-                    // Redirect to login page here if you have one
                 } else {
-                    // Check if result.error is an object or string
                     const errMsg = result.error || result.message || JSON.stringify(result);
                     alert("Error: " + errMsg);
                 }
@@ -177,6 +169,15 @@
                 alert("Network Error: Ensure server is running on port 3000");
             }
         });
+
+        if (res.ok) {
+            const email = document.getElementById("email").value;
+            
+            localStorage.setItem("currentUserEmail", email);
+
+            alert("Account created!");
+            window.location.href = "group.html"; 
+        }
     </script>
 </body>
 </html>

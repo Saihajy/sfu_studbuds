@@ -180,7 +180,6 @@
       `;
     }
 
-    // Simple HTML escape so values don’t break your template
     function escapeHtml(str) {
       return String(str)
         .replaceAll("&", "&amp;")
@@ -278,8 +277,7 @@
 
       // courses
       const courses = readCoursesFromUI().map(c => ({
-        // Your server validation expects dept/number/year/term
-        // Keep dept uppercase in DB? Your schema uppercases dept automatically.
+        // sserver expects dept/number/year/term
         dept: (c.dept || "").trim(),
         number: (c.number || "").trim(),
         term: (c.term || "").trim(),
@@ -295,7 +293,6 @@
         studyAvailability
       };
 
-      // Remove undefined fields so you don’t accidentally overwrite with undefined
       function stripUndefined(obj) {
         Object.keys(obj).forEach(k => {
           if (obj[k] === undefined) delete obj[k];
@@ -351,7 +348,6 @@
           return;
         }
 
-        // Update UI using returned user (canonical data)
         if (data?.user) fillFormFromUser(data.user);
         setStatus("saved!");
       } catch (err) {
