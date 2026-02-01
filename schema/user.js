@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-mongoose.connect ('mongodb://localhost:8080/studbuds')
+mongoose.connect ('mongodb://localhost:27017/studentUser')
 .then(() => {
   console.log('MongoDB connected');
 })
@@ -10,15 +10,39 @@ mongoose.connect ('mongodb://localhost:8080/studbuds')
 const UserSchema = new mongoose.Schema({
     personal: {
     name: { type: String, required: true }, 
-    email: { type: String, required: true, unique: true },
     age: { type: Number, min: [10, 'You are not in University!'], max: [90, 'You are too old for University!'] },
-    gender: String,
+    gender: {type: String, enum: ['M', 'F', 'Other']},
+    email: { type: String, required: true, unique: true },
+    phone: String,
+    passwordHash: { type: String, required: true },
     
+
   },
   school:{
-    name: { type: String, required: true },
+    schoolName: { type: String, required: true },
     program: { type: String, required: true },
-    year: { type: Number, min: 1, required: true }
+    year: { type: Number, min: 1, required: true },
+    courses: [{
+      dept: String,
+      number: String,
+      term: String
+    }],
+
+    studyAvailability: {
+      Monday: [String],
+      Tuesday: [String],
+      Wednesday: [String],
+      Thursday: [String],
+      Friday: [String],
+      Saturday: [String],
+      Sunday: [String]
+    }
   }
 
-})
+});
+
+const User = mongoose.model('User', UserSchema);
+
+
+
+module.exports = User;
