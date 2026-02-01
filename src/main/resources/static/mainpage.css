@@ -1,1 +1,58 @@
+/* .css for landing page, aiming for retro windows 95' esque vibe 
+est. 2026, ASB
+*/
 
+:root {
+    --bg: #c0c0c0; 
+    --panel: #dcdcdc;
+    --shadow-dark: #808080; 
+    --shadow-light: #ffffff;
+    --text: #000000;
+    --blue: #000080;
+}
+
+body {
+    margin: 0;
+    font-family: "Press Start 2P", system-ui;
+    background: var(--bg);
+    color: var(--text);
+    text-align: center;
+}
+
+nav {
+    margin-top: 25px;
+}
+
+.press-start-2p-regular {
+  font-family: "Press Start 2P", system-ui;
+  font-weight: 400;
+  font-style: normal;
+}
+
+
+.window {
+    width: min(500px, 90vw);
+    margin: 50px auto;
+    background: var(--panel);
+    border: 2px solid var(--shadow-dark);
+    /* 3d effect */
+    box-shadow:
+        -2px -2px 0 var(--shadow-light),
+        2px 2px 0 var(--shadow-dark);
+}
+
+/* Title bar */
+.title-bar {
+    background: var(--blue);
+    color: #CC0633;
+    padding: 10px 8px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 40px;
+}
+
+.window-context {
+    padding: 14px;
+}
