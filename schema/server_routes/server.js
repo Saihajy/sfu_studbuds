@@ -116,29 +116,74 @@ app.get("/api/users/search", requireAuth, async (req, res) => {
     }
 
     const users = await User.find(q).limit(50);
-    res.json({ ok: true, users: users.map(sanitize) });
+    res.json({ ok: true, users: users.map(userPreview) });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 });
 
-// LIST ALL USERS (basic, no filters)
+
+
+
+
+function userPreview(userDoc) {
+  return {
+    id: userDoc._id,
+    name: userDoc.personal.name,
+    program: userDoc.school.program,
+    year: userDoc.school.year
+  };
+}
+
+function publicProfile(userDoc) {
+  return {
+    id: userDoc._id,
+    name: userDoc.personal.name,
+    email: userDoc.personal.email,
+    gender: userDoc.personal.gender,
+    school: {
+      schoolName: userDoc.school.schoolName,
+      program: userDoc.school.program,
+      year: userDoc.school.year,
+      courses: userDoc.school.courses,
+      studyAvailability: userDoc.school.studyAvailability
+    }
+  };
+}
+
+// LIST ALL USERS (preview list)
 app.get("/api/users", requireAuth, async (req, res) => {
   try {
-    const users = await User.find(
-      { _id: { $ne: req.session.userId } } // don’t return yourself
-    ).limit(50);
+    const users = await User.find({ _id: { $ne: req.session.userId } }).limit(50);
 
     res.json({
       ok: true,
-      users: users.map(sanitize)
+      users: users.map(userPreview)
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Server error" });
   }
 });
+
+// GET FULL USER PROFILE (when you click someone)
+app.get("/api/users/:id", requireAuth, async (req, res) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    res.json({ ok: true, user: publicProfile(user) });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+
+
+
+
 
 // health
 app.get("/api/health", (req, res) => res.json({ ok: true }));
