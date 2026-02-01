@@ -35,6 +35,7 @@
   </form>
 
   <script>
+    
     const form = document.getElementById("loginForm");
     const msg = document.getElementById("msg");
 
@@ -62,6 +63,10 @@
           msg.textContent = data.message || "Invalid login";
           return;
         }
+
+       const emailToSave = document.getElementById("email").value.trim();
+
+        localStorage.setItem("currentUserEmail", emailToSave);
 
         window.location.href = "mainpage.html";
 
