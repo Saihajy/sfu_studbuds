@@ -7,7 +7,24 @@ const session = require("express-session");
 const cors = require("cors");
 
 const app = express()
-app.use(express.json())
+// --- 1. ENABLE LOGGING (See if the server even hears you) ---
+app.use((req, res, next) => {
+  console.log(`Incoming Request: ${req.method} ${req.url}`);
+  next();
+});
+
+// --- 2. BULLETPROOF CORS SETUP ---
+app.use(cors({
+  origin: "http://localhost:8080", // Allow only your frontend
+  credentials: true,               // Allow cookies/sessions
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Allow these verbs
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+// Handle "Preflight" requests explicitly
+
+// --- 3. JSON PARSING (After CORS) ---
+app.use(express.json());
 
 mongoose.connect('mongodb://localhost:27017/studentUser')
 .then(() => {
@@ -30,9 +47,9 @@ async function validateCourseWithSFU(dept, number, year, term) {
 
 app.post('/register', async (req, res) => {
   try {
-    const { school } = req.body;
+    const { personal, school } = req.body;
 
-    // Validate courses
+    // 1. SFU Course Validation
     if (school && school.courses) {
       for (const course of school.courses) {
         const isValid = await validateCourseWithSFU(
@@ -41,7 +58,6 @@ app.post('/register', async (req, res) => {
           course.year, 
           course.term
         );
-        
         if (!isValid) {
           return res.status(400).json({ 
             error: `Invalid Course: ${course.dept} ${course.number} does not exist in ${course.term} ${course.year}` 
@@ -50,22 +66,41 @@ app.post('/register', async (req, res) => {
       }
     }
 
-    // Save User
-    const user = new User(req.body);
+    // 2. Hash the Password
+    // We expect the frontend to send 'password' inside 'personal'
+    if (!personal || !personal.password) {
+      return res.status(400).send("Password is required");
+    }
+
+    const salt = await bcrypt.genSalt(10);
+    const hash = await bcrypt.hash(personal.password, salt);
+
+    // 3. Prepare the object for Mongoose
+    // We swap 'password' for 'passwordHash'
+    const userPayload = {
+      ...req.body,
+      personal: {
+        ...personal,
+        passwordHash: hash // Save the HASH, not the plain text
+      }
+    };
+
+    // 4. Save
+    const user = new User(userPayload);
     await user.save();
     console.log("User created:", user.personal.name);
-    res.status(201).send(user);
+    
+    // Return sanitized user (no hash)
+    res.status(201).send(sanitize(user));
 
   } catch (err) {
+    console.error(err);
     if (err.code === 11000) return res.status(400).send("Email already exists");
     res.status(500).send(err.message);
   }
 });
 
-app.use(cors({
-  origin: "http://localhost:8080", // wherever your HTML is served from
-  credentials: true,
-}));
+
 
 app.use(session({
   secret: "studbuds_dev_secret",
